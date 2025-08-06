@@ -1,25 +1,26 @@
 import Fastify from "fastify";
+import { databasePlugin } from "./core/database/database.plugin";
+import { postsRoutes } from "./modules/posts/posts.routes";
 
 const fastify = Fastify({
   logger: true,
 });
 
+// Register our database plugin
+fastify.register(databasePlugin);
+// Register our new posts routes
+fastify.register(postsRoutes);
 
-// A simple health check route
-fastify.get("/", async function (request, reply) {
-  return { hello: "world" };
+// Declare a default route
+fastify.get("/", function (request, reply) {
+  reply.send({ hello: "world" });
 });
 
 const port = 3000;
 
-const start = async ()=> {
-  try {
-    await fastify.listen({ port });
-    console.log(`🚀 Server is now listening on http://127.0.0.1:${port}`);
-  } catch (err) {
+fastify.listen({ port }, function (err, address) {
+  if (err) {
     fastify.log.error(err);
     process.exit(1);
   }
-};
-
-start();
+});
